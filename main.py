@@ -1,11 +1,7 @@
 from pymodbus.client.sync import ModbusTcpClient
 from pymodbus.server.sync import StartTcpServer
 from pymodbus.pdu import ModbusRequest
-from pymodbus.device import ModbusDeviceIdentification
 import struct
-import signal
-
-slaveId = 255
 
 client = ModbusTcpClient("127.0.0.1", port=5020)
 
