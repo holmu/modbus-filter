@@ -1,11 +1,8 @@
 from pymodbus.client.sync import ModbusTcpClient
 from pymodbus.server.sync import StartTcpServer
 from pymodbus.pdu import ModbusRequest
-from pymodbus.device import ModbusDeviceIdentification
+from pymodbus.bit_read_message import ReadBitsRequestBase
 import struct
-import signal
-
-slaveId = 255
 
 client = ModbusTcpClient("127.0.0.1", port=5020)
 
@@ -32,7 +29,17 @@ class ProxiedReadCoilsRequest(ModbusRequest):
         return 1 + 1 + count
 
     def execute(self, context):
-        result = client.read_coils(self.address, count=self.count, slave=255)
+        result = client.read_coils(self.address, count=self.count, slave=self.unit_id)
+        return result
+
+class ProxiedReadDiscreteInputsRequest(ModbusRequest):
+    function_code = 2
+
+    def __init__(self, address=None, count=None, unit=0, **kwargs):
+        ReadBitsRequestBase.__init__(self, address, count, unit, **kwargs)
+
+    def execute(self, context):
+        result = client.read_discrete_inputs(self.address, count=self.count, slave=self.unit_id)
         return result
 
 class ProxiedReadHoldingRegistersRequest(ModbusRequest):
@@ -54,7 +61,7 @@ class ProxiedReadHoldingRegistersRequest(ModbusRequest):
         return 1 + 1 + 2 * self.count
 
     def execute(self, context):
-        result = client.read_holding_registers(self.address, count=self.count, slave=255)
+        result = client.read_holding_registers(self.address, count=self.count, slave=self.unit_id)
         return result
 
 class ProxiedReadInputRegistersRequest(ModbusRequest):
@@ -76,7 +83,12 @@ class ProxiedReadInputRegistersRequest(ModbusRequest):
         return 1 + 1 + 2 * self.count
 
     def execute(self, context):
-        result = client.read_input_registers(self.address, count=self.count, slave=255)
+        result = client.read_input_registers(self.address, count=self.count, slave=self.unit_id)
         return result
 
-StartTcpServer(address=("0.0.0.0", 502), custom_functions=[ProxiedReadInputRegistersRequest, ProxiedReadHoldingRegistersRequest, ProxiedReadCoilsRequest])
+StartTcpServer(address=("0.0.0.0", 502), custom_functions=[
+        ProxiedReadCoilsRequest,
+        ProxiedReadDiscreteInputsRequest,
+        ProxiedReadHoldingRegistersRequest,
+        ProxiedReadInputRegistersRequest
+    ])
