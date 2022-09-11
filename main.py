@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from pymodbus.client.sync import ModbusTcpClient
 from pymodbus.server.sync import StartTcpServer
 from pymodbus.pdu import ModbusRequest
