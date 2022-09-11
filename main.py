@@ -5,8 +5,7 @@ from pymodbus.server.sync import StartTcpServer
 from pymodbus.pdu import ModbusRequest
 from pymodbus.bit_read_message import ReadBitsRequestBase
 import struct
-
-client = ModbusTcpClient("127.0.0.1", port=5020)
+import argparse
 
 class ProxiedReadCoilsRequest(ModbusRequest):
     function_code = 1
@@ -88,9 +87,26 @@ class ProxiedReadInputRegistersRequest(ModbusRequest):
         result = client.read_input_registers(self.address, count=self.count, slave=self.unit_id)
         return result
 
-StartTcpServer(address=("0.0.0.0", 502), custom_functions=[
-        ProxiedReadCoilsRequest,
-        ProxiedReadDiscreteInputsRequest,
-        ProxiedReadHoldingRegistersRequest,
-        ProxiedReadInputRegistersRequest
-    ])
+def main(client_address, client_port, listen_address, listen_port):
+    global client
+    client = ModbusTcpClient(client_address, port=client_port)
+    StartTcpServer(address=(listen_address, listen_port), custom_functions=[
+            ProxiedReadCoilsRequest,
+            ProxiedReadDiscreteInputsRequest,
+            ProxiedReadHoldingRegistersRequest,
+            ProxiedReadInputRegistersRequest
+        ])
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Modbus/TCP filter forwarding only write requests.')
+    parser.add_argument('--client-address', metavar='ip', type=str, nargs=1, default="127.0.0.1",
+                        help='ip address of the Modbus/TCP client')
+    parser.add_argument('--client-port', metavar='port', type=int, nargs=1, default=5020,
+                        help='tcp port of the Modbus/TCP client')
+    parser.add_argument('--listen-address', metavar='ip', type=str, nargs=1, default="0.0.0.0",
+                    help='ip address of the Modbus/TCP filter to listen on')
+    parser.add_argument('--listen-port', metavar='port', type=int, nargs=1, default=502,
+                    help='tcp port of the Modbus/TCP filter to listen on')
+
+    args = parser.parse_args()
+    main(args.client_address[0], args.client_port, args.listen_address[0], args.listen_port)
