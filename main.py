@@ -1,6 +1,7 @@
 from pymodbus.client.sync import ModbusTcpClient
 from pymodbus.server.sync import StartTcpServer
 from pymodbus.pdu import ModbusRequest
+from pymodbus.bit_read_message import ReadBitsRequestBase
 import struct
 
 client = ModbusTcpClient("127.0.0.1", port=5020)
@@ -29,6 +30,16 @@ class ProxiedReadCoilsRequest(ModbusRequest):
 
     def execute(self, context):
         result = client.read_coils(self.address, count=self.count, slave=self.unit_id)
+        return result
+
+class ProxiedReadDiscreteInputsRequest(ModbusRequest):
+    function_code = 2
+
+    def __init__(self, address=None, count=None, unit=0, **kwargs):
+        ReadBitsRequestBase.__init__(self, address, count, unit, **kwargs)
+
+    def execute(self, context):
+        result = client.read_discrete_inputs(self.address, count=self.count, slave=self.unit_id)
         return result
 
 class ProxiedReadHoldingRegistersRequest(ModbusRequest):
@@ -75,4 +86,9 @@ class ProxiedReadInputRegistersRequest(ModbusRequest):
         result = client.read_input_registers(self.address, count=self.count, slave=self.unit_id)
         return result
 
-StartTcpServer(address=("0.0.0.0", 502), custom_functions=[ProxiedReadInputRegistersRequest, ProxiedReadHoldingRegistersRequest, ProxiedReadCoilsRequest])
+StartTcpServer(address=("0.0.0.0", 502), custom_functions=[
+        ProxiedReadCoilsRequest,
+        ProxiedReadDiscreteInputsRequest,
+        ProxiedReadHoldingRegistersRequest,
+        ProxiedReadInputRegistersRequest
+    ])
