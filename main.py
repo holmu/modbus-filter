@@ -28,7 +28,7 @@ class ProxiedReadCoilsRequest(ModbusRequest):
         return 1 + 1 + count
 
     def execute(self, context):
-        result = client.read_coils(self.address, count=self.count, slave=255)
+        result = client.read_coils(self.address, count=self.count, slave=self.unit_id)
         return result
 
 class ProxiedReadHoldingRegistersRequest(ModbusRequest):
@@ -50,7 +50,7 @@ class ProxiedReadHoldingRegistersRequest(ModbusRequest):
         return 1 + 1 + 2 * self.count
 
     def execute(self, context):
-        result = client.read_holding_registers(self.address, count=self.count, slave=255)
+        result = client.read_holding_registers(self.address, count=self.count, slave=self.unit_id)
         return result
 
 class ProxiedReadInputRegistersRequest(ModbusRequest):
@@ -72,7 +72,7 @@ class ProxiedReadInputRegistersRequest(ModbusRequest):
         return 1 + 1 + 2 * self.count
 
     def execute(self, context):
-        result = client.read_input_registers(self.address, count=self.count, slave=255)
+        result = client.read_input_registers(self.address, count=self.count, slave=self.unit_id)
         return result
 
 StartTcpServer(address=("0.0.0.0", 502), custom_functions=[ProxiedReadInputRegistersRequest, ProxiedReadHoldingRegistersRequest, ProxiedReadCoilsRequest])
