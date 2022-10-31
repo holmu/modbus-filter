@@ -99,14 +99,14 @@ def main(client_address, client_port, listen_address, listen_port):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Modbus/TCP filter forwarding only write requests.')
-    parser.add_argument('--client-address', metavar='ip', type=str, nargs=1, default="127.0.0.1",
+    parser.add_argument('--client-address', metavar='ip', type=str, default="127.0.0.1",
                         help='ip address of the Modbus/TCP client')
-    parser.add_argument('--client-port', metavar='port', type=int, nargs=1, default=5020,
+    parser.add_argument('--client-port', metavar='port', type=int, default=5020,
                         help='tcp port of the Modbus/TCP client')
-    parser.add_argument('--listen-address', metavar='ip', type=str, nargs=1, default="0.0.0.0",
+    parser.add_argument('--listen-address', metavar='ip', type=str, default="0.0.0.0",
                     help='ip address of the Modbus/TCP filter to listen on')
-    parser.add_argument('--listen-port', metavar='port', type=int, nargs=1, default=502,
+    parser.add_argument('--listen-port', metavar='port', type=int, default=502,
                     help='tcp port of the Modbus/TCP filter to listen on')
 
     args = parser.parse_args()
-    main(args.client_address[0], args.client_port, args.listen_address[0], args.listen_port)
+    main(args.client_address, args.client_port, args.listen_address, args.listen_port)
